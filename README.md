@@ -1,3 +1,7 @@
+# EarthTones
+
+This repository stores the completed at WIP VCV rack plug-ins developed by Aaron Karp, under the name *EarthTones*.
+
 ## PolarCV
 
 This is a module that generates control voltages that correspond to a point traveling along various polar equations.
