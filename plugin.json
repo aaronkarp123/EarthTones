@@ -16,7 +16,7 @@
     {
       "slug": "Polar",
       "name": "PolarCV",
-      "description": "",
+      "description": "CV Generator for polar equations",
       "tags": ["Function generator", "Low-frequency oscillator", "Utility", "Visual"]
     }
   ]
