@@ -291,7 +291,7 @@ struct PolarCVDisplay : LedDisplay {
                 break;
         }
         
-        nvgText(args.vg, pos.x + 58 * 1, pos.y, text.c_str(), NULL);
+        nvgText(args.vg, pos.x + 40, pos.y, text.c_str(), NULL);
     }
     
     void drawBackground(const DrawArgs& args) {
