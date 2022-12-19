@@ -14,7 +14,7 @@
   "changelogUrl": "",
   "modules": [
     {
-      "slug": "Polar",
+      "slug": "PolarCV",
       "name": "PolarCV",
       "description": "CV Generator for polar equations",
       "tags": ["Function generator", "Low-frequency oscillator", "Utility", "Visual"]
