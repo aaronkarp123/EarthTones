@@ -140,7 +140,7 @@ struct PolarCV : Module {
     
     void updateTheta() {
         
-        theta_delta = speed * M_PI / 1000.0f * (time_mults[time_mult_idx] * time_mults[time_mult_idx]) + 0.000001f;
+        theta_delta = speed * M_PI / 1000.0f * (time_mults[time_mult_idx] * time_mults[time_mult_idx]) + 0.000005f;
         
         cur_theta = cur_theta + theta_delta;
         if (cur_theta > theta_mod){
