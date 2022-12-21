@@ -18,6 +18,7 @@ struct PolarCV : Module {
         A_DIAL_PARAM,
         B_DIAL_PARAM,
         CUR_EQ_PARAM,
+        CUR_TIME_MULT_IDX_PARAM,
         PARAMS_LEN
     };
     enum InputId {
@@ -43,7 +44,6 @@ struct PolarCV : Module {
     int current_equation = 0;
     bool prev_next_eq_trig = false;
     bool prev_prev_eq_trig = false;
-    int time_mult_idx = 0;
     float time_mults[3] = {0.5f, 1.f, 2.f};
     int color_lights[3][3] = {{255, 0, 255}, {0, 255, 255}, {255, 255, 0}};
     bool prev_time_mult = false;
@@ -79,6 +79,7 @@ struct PolarCV : Module {
         configParam(A_DIAL_PARAM, 0, 20, 1, "A", " V", 0.f, 0.5f);
         configParam(B_DIAL_PARAM, 0, 20, 1, "B", " V", 0.f, 0.5f);
         configParam(CUR_EQ_PARAM, 0, 3, 1);
+        configParam(CUR_TIME_MULT_IDX_PARAM, 0, 2, 1);
         getParamQuantity(A_DIAL_PARAM)->snapEnabled = true;
         getParamQuantity(B_DIAL_PARAM)->snapEnabled = true;
         configOutput(R_OUT_OUTPUT, "R");
@@ -91,7 +92,7 @@ struct PolarCV : Module {
         
         bool double_time = params[SPEED_MULT_PARAM].getValue();
         if (prev_time_mult != double_time){
-            time_mult_idx = (time_mult_idx + 1) % 3;
+            params[CUR_TIME_MULT_IDX_PARAM].setValue((int(params[CUR_TIME_MULT_IDX_PARAM].getValue()) + 1) % 3);
         }
         prev_time_mult = double_time;
         
@@ -127,9 +128,10 @@ struct PolarCV : Module {
         outputs[X_OUT_OUTPUT].setVoltage(carts.x*10.0f);
         outputs[Y_OUT_OUTPUT].setVoltage(carts.y*10.0f);
         
-        lights[SPEED_MULT_LIGHT + 0].setBrightness(color_lights[time_mult_idx][0]);
-        lights[SPEED_MULT_LIGHT + 1].setBrightness(color_lights[time_mult_idx][1]);
-        lights[SPEED_MULT_LIGHT + 2].setBrightness(color_lights[time_mult_idx][2]);
+        int cur_mlt_idx = int(params[CUR_TIME_MULT_IDX_PARAM].getValue());
+        lights[SPEED_MULT_LIGHT + 0].setBrightness(color_lights[cur_mlt_idx][0]);
+        lights[SPEED_MULT_LIGHT + 1].setBrightness(color_lights[cur_mlt_idx][1]);
+        lights[SPEED_MULT_LIGHT + 2].setBrightness(color_lights[cur_mlt_idx][2]);
         
         //lights[NEXT_EQ_LIGHT].setBrightness(params[NEXT_EQ_PARAM].getValue());
         lights[PREV_EQ_LIGHT].setBrightness(0.5f);
@@ -140,7 +142,9 @@ struct PolarCV : Module {
     
     void updateTheta() {
         
-        theta_delta = speed * M_PI / 1000.0f * (time_mults[time_mult_idx] * time_mults[time_mult_idx]) + 0.000005f;
+        float cur_mlt = time_mults[int(params[CUR_TIME_MULT_IDX_PARAM].getValue())];
+        
+        theta_delta = speed * M_PI / 1000.0f * (cur_mlt * cur_mlt) + 0.000005f;
         
         cur_theta = cur_theta + theta_delta;
         if (cur_theta > theta_mod){
@@ -253,7 +257,7 @@ struct PolarCVDisplay : LedDisplay {
         
     }
     
-    void drawStats(const DrawArgs& args, Vec pos, const char* title, const Stats& stats, float A, float B, float current_equation_t, float time_mult, float cur_theta) {
+    void drawStats(const DrawArgs& args, Vec pos, const char* title, const Stats& stats, float A, float B, float current_equation_t, float time_mults[], int time_mult,float cur_theta) {
         std::shared_ptr<Font> font = APP->window->loadFont(fontPath);
         if (!font)
             return;
@@ -272,7 +276,7 @@ struct PolarCVDisplay : LedDisplay {
 
         std::string text;
         text = "";
-        text += std::to_string(time_mult).substr(0, 3) + "x";
+        text += std::to_string(time_mults[time_mult]).substr(0, 3) + "x";
         nvgText(args.vg, pos.x, pos.y, text.c_str(), NULL);
         
         text = "f = ";
@@ -390,7 +394,9 @@ struct PolarCVDisplay : LedDisplay {
         
         drawCursor(args, A, B, module->cur_theta, module->current_cursor);
         
-        drawStats(args, Vec(0, 0 + 1), "1", statsX, A, B, module->params[PolarCV::CUR_EQ_PARAM].getValue(), module->time_mults[module->time_mult_idx], module->cur_theta);
+        int cur_time = int(module->params[PolarCV::CUR_TIME_MULT_IDX_PARAM].getValue());
+        
+        drawStats(args, Vec(0, 0 + 1), "1", statsX, A, B, module->params[PolarCV::CUR_EQ_PARAM].getValue(), module->time_mults, cur_time, module->cur_theta);
     }
     
 };
